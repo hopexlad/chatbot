@@ -22,7 +22,7 @@ const userData ={
     }
 }
 const dataset = {
-    "hello": "Hi there! How can I help you?",
+    "hello": "sollu mapla",
     "how are you?": "I'm just a bot, but I'm doing great! What about you?",
     "what is your name?": "I'm your chatbot assistant!",
     "bye": "Goodbye! Have a great day!"
