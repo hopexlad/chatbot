@@ -22,7 +22,7 @@ const userData ={
 }
 const dataset = {
     "bsc cs syllabus": " go and check out https://collegedunia.com/courses/bachelor-of-science-bsc-computer-science/syllabus",
-    "EEE syllabus": "https://cac.annauniv.edu/aidetails/afug_2021_fu/Revised/EEE/B.E.%20EEE.pdf",
+    "EEE syllabus": "https://hopexlad.github.io/chatbot/",
     "what is your name?": "I'm your chatbot assistant!",
     "bye": "Goodbye! Have a great day!"
 };
