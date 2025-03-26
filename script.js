@@ -56,23 +56,23 @@ const createMessageElement = (content, ...classes) => {
     return div;
 }
 
-const generateBotResponse = async (incomeingMessageDiv) => {
-    const messageElement = incomeingMessageDiv.querySelector(".message-text");
+const generateBotResponse = async (incomingMessageDiv) => {
+    const messageElement = incomingMessageDiv.querySelector(".message-text");
 
-    // Check if the message exists in the dataset
-    const userMessageLower = userData.message.toLowerCase();
-    if (dataset[userMessageLower]) {
-        messageElement.innerText = dataset[userMessageLower]; // Use dataset answer
+    const userQuery = userData.message.toLowerCase().trim();
+
+    // Check if the question exists in the dataset first
+    if (dataset[userQuery]) {
+        messageElement.innerText = dataset[userQuery]; // Respond from CSV dataset
         return;
     }
 
-    // If not found in dataset, proceed with API call
+    // If not in dataset, proceed to call API
     chatHistory.push({
         role: "user",
         parts: [{ text: userData.message }, ...(userData.file.data ? [{ inline_data: userData.file }] : [])]
     });
 
-    // API request options
     const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -80,26 +80,24 @@ const generateBotResponse = async (incomeingMessageDiv) => {
     };
 
     try {
-        // Fetch user message from API
         const response = await fetch(API_URL, requestOptions);
         const data = await response.json();
         if (!response.ok) throw new Error(data.error.message);
 
-        // Extract and display bot's response text
         const apiResponseText = data.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, "$1").trim();
         messageElement.innerText = apiResponseText;
 
-        // Add bot response to chat history
-        chatHistory.push({ role: "model", parts: [{ text: apiResponseText }] });
-
+        chatHistory.push({
+            role: "model",
+            parts: [{ text: apiResponseText }]
+        });
     } catch (error) {
         console.log(error);
-        messageElement.innerText = error.message;
+        messageElement.innerText = "Error fetching response!";
         messageElement.style.color = "#ff0000";
     } finally {
-        // Reset user's file data, remove thinking indicator, and scroll chat to bottom
         userData.file = {};
-        incomeingMessageDiv.classList.remove("thinking");
+        incomingMessageDiv.classList.remove("thinking");
         chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
     }
 };
