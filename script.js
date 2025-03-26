@@ -25,6 +25,8 @@ const dataset = {
     "EEE syllabus": "https://hopexlad.github.io/chatbot/",
     "what is your name?": "I'm your chatbot assistant!",
     "bye": "Goodbye! Have a great day!"
+    
+    
 };
 
 const chatHistory =[];
