@@ -30,12 +30,20 @@ const dataset = {
     "bye": "Goodbye! Have a great day!"
 };
 
-// Create message element with dynamic classes ans return it
-const generateBotResponse = async (incomeingMessageDiv) => {
-    const messageElement = incomeingMessageDiv.querySelector(".message-text");
+// Create message element with dynamic classes and return it
+const generateBotResponse = async (incomingMessageDiv) => {
+    const messageElement = incomingMessageDiv.querySelector(".message-text");
+
+    // Ensure userData is globally available
+    if (!userData || !userData.message) {
+        console.error("Error: userData is undefined or empty.");
+        messageElement.innerText = "Something went wrong!";
+        return;
+    }
+
+    const userMessageLower = userData.message.toLowerCase().trim();
 
     // Check if the message exists in the dataset
-    const userMessageLower = userData.message.toLowerCase();
     if (dataset[userMessageLower]) {
         messageElement.innerText = dataset[userMessageLower]; // Use dataset answer
         return;
@@ -44,7 +52,7 @@ const generateBotResponse = async (incomeingMessageDiv) => {
     // If not found in dataset, proceed with API call
     chatHistory.push({
         role: "user",
-        parts: [{ text: userData.message }, ...(userData.file.data ? [{ inline_data: userData.file }] : [])]
+        parts: [{ text: userData.message }, ...(userData.file?.data ? [{ inline_data: userData.file }] : [])]
     });
 
     // API request options
@@ -58,26 +66,30 @@ const generateBotResponse = async (incomeingMessageDiv) => {
         // Fetch user message from API
         const response = await fetch(API_URL, requestOptions);
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error.message);
+
+        if (!response.ok || !data?.candidates || data.candidates.length === 0) {
+            throw new Error("API response error");
+        }
 
         // Extract and display bot's response text
-        const apiResponseText = data.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, "$1").trim();
-        messageElement.innerText = apiResponseText;
+        const apiResponseText = data.candidates[0]?.content?.parts?.[0]?.text?.replace(/\*\*(.*?)\*\*/g, "$1").trim();
+        messageElement.innerText = apiResponseText || "No response from API";
 
         // Add bot response to chat history
         chatHistory.push({ role: "model", parts: [{ text: apiResponseText }] });
 
     } catch (error) {
         console.log(error);
-        messageElement.innerText = error.message;
+        messageElement.innerText = "Error fetching response!";
         messageElement.style.color = "#ff0000";
     } finally {
         // Reset user's file data, remove thinking indicator, and scroll chat to bottom
         userData.file = {};
-        incomeingMessageDiv.classList.remove("thinking");
+        incomingMessageDiv.classList.remove("thinking");
         chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
     }
 };
+
 
 //Handle outgoing user messages
 const handleOutgoingMessage = (e) => {
