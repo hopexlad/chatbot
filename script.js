@@ -21,17 +21,32 @@ const userData ={
         mime_type: null
     }
 }
-const dataset = {
-    "dai": "sollu mapla",
-    
-    "how are you?": "I'm just a bot, but I'm doing great! What about you?",
-    "what is your name?": "I'm your chatbot assistant!",
-    "bye": "Goodbye! Have a great day!"
+let dataset = {}; // Will store the questions and answers
+
+// Function to load CSV from GitHub and parse it
+const loadCSVData = async () => {
+    try {
+        const response = await fetch("https://raw.githubusercontent.com/yourusername/repo/main/qur.csv"); // Replace with your actual raw URL
+        const csvText = await response.text();
+        
+        // Parse CSV into JSON
+        Papa.parse(csvText, {
+            header: true,
+            skipEmptyLines: true,
+            complete: (result) => {
+                result.data.forEach(row => {
+                    dataset[row.question.toLowerCase()] = row.answer; // Assuming CSV has "question" and "answer" columns
+                });
+                console.log("Dataset loaded:", dataset); // Debugging to check dataset
+            }
+        });
+    } catch (error) {
+        console.error("Error loading CSV:", error);
+    }
 };
 
-
-const chatHistory =[];
-const initialInputheight = messageInput.scrollHeight;
+// Call the function to load the CSV when the page loads
+loadCSVData();
 
 // Create message element with dynamic classes ans return it
 const createMessageElement = (content, ...classes) => {
