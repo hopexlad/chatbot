@@ -1,17 +1,3 @@
-Conversation opened. 1 unread message.
-
-Skip to content
-Using Gmail with screen readers
-Enable desktop notifications for Gmail.
-   OK  No thanks
-1 of 186
-(no subject)
-Inbox
-
-Harish <harisht1320@gmail.com>
-11:17 AM (0 minutes ago)
-to me
-
 
 const chatBody =document.querySelector(".chat-body");
 const messageInput =document.querySelector(".message-input");
