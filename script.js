@@ -45,6 +45,8 @@ const dataset = {
     "can you help me with history?": "Of course! What historical topic do you need help with?",
     "dai":"sollu mapla",
     "soldra":"enna da soldradhu",
+    "yedhachi soldra":"yedhachina enna da..theliva soldra!!",
+    "seri vidu vidu":"rytdra",
     "what is active learning?": "It’s engaging with the material by discussing, summarizing, or teaching it to someone else.",
     "how do I stay motivated to study?": "Set clear goals, reward yourself, and remind yourself why learning is important!",
     "how do I write a strong thesis statement?": "Make it clear, concise, and arguable—summarize your main argument in one sentence.",
