@@ -50,7 +50,7 @@ body.show-chatbot #chatbot-toggler span:last-child {
     position: fixed;
     right: 35px;
     bottom: 90px;
-    width: 750px;
+    width: 720px;
     background: #fff;
     overflow: hidden;
     border-radius: 15px;
@@ -382,5 +382,3 @@ body.show-emoji-picker em-emoji-picker {
         opacity: 0;
     }
 }
-
-
