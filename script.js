@@ -23,56 +23,31 @@ const userData ={
 }
 let dataset = {}; // Will store the questions and answers
 
-// Function to load CSV from GitHub and parse it
-const loadCSVData = async () => {
-    try {
-        const response = await fetch("https://raw.githubusercontent.com/yourusername/repo/main/qur.csv"); // Replace with your actual raw URL
-        const csvText = await response.text();
-        
-        // Parse CSV into JSON
-        Papa.parse(csvText, {
-            header: true,
-            skipEmptyLines: true,
-            complete: (result) => {
-                result.data.forEach(row => {
-                    dataset[row.question.toLowerCase()] = row.answer; // Assuming CSV has "question" and "answer" columns
-                });
-                console.log("Dataset loaded:", dataset); // Debugging to check dataset
-            }
-        });
-    } catch (error) {
-        console.error("Error loading CSV:", error);
-    }
+const dataset = {
+    "hello": "Hi there! How can I help you?",
+    "how are you?": "I'm just a bot, but I'm doing great! What about you?",
+    "what is your name?": "I'm your chatbot assistant!",
+    "bye": "Goodbye! Have a great day!"
 };
 
-// Call the function to load the CSV when the page loads
-loadCSVData();
-
 // Create message element with dynamic classes ans return it
-const createMessageElement = (content, ...classes) => {
-    const div = document.createElement("div");
-    div.classList.add("message",...classes);
-    div.innerHTML = content;
-    return div;
-}
+const generateBotResponse = async (incomeingMessageDiv) => {
+    const messageElement = incomeingMessageDiv.querySelector(".message-text");
 
-const generateBotResponse = async (incomingMessageDiv) => {
-    const messageElement = incomingMessageDiv.querySelector(".message-text");
-
-    const userQuery = userData.message.toLowerCase().trim();
-
-    // Check if the question exists in the dataset first
-    if (dataset[userQuery]) {
-        messageElement.innerText = dataset[userQuery]; // Respond from CSV dataset
+    // Check if the message exists in the dataset
+    const userMessageLower = userData.message.toLowerCase();
+    if (dataset[userMessageLower]) {
+        messageElement.innerText = dataset[userMessageLower]; // Use dataset answer
         return;
     }
 
-    // If not in dataset, proceed to call API
+    // If not found in dataset, proceed with API call
     chatHistory.push({
         role: "user",
         parts: [{ text: userData.message }, ...(userData.file.data ? [{ inline_data: userData.file }] : [])]
     });
 
+    // API request options
     const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -80,24 +55,26 @@ const generateBotResponse = async (incomingMessageDiv) => {
     };
 
     try {
+        // Fetch user message from API
         const response = await fetch(API_URL, requestOptions);
         const data = await response.json();
         if (!response.ok) throw new Error(data.error.message);
 
+        // Extract and display bot's response text
         const apiResponseText = data.candidates[0].content.parts[0].text.replace(/\*\*(.*?)\*\*/g, "$1").trim();
         messageElement.innerText = apiResponseText;
 
-        chatHistory.push({
-            role: "model",
-            parts: [{ text: apiResponseText }]
-        });
+        // Add bot response to chat history
+        chatHistory.push({ role: "model", parts: [{ text: apiResponseText }] });
+
     } catch (error) {
         console.log(error);
-        messageElement.innerText = "Error fetching response!";
+        messageElement.innerText = error.message;
         messageElement.style.color = "#ff0000";
     } finally {
+        // Reset user's file data, remove thinking indicator, and scroll chat to bottom
         userData.file = {};
-        incomingMessageDiv.classList.remove("thinking");
+        incomeingMessageDiv.classList.remove("thinking");
         chatBody.scrollTo({ top: chatBody.scrollHeight, behavior: "smooth" });
     }
 };
